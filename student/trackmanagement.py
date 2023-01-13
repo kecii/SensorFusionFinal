@@ -151,6 +151,8 @@ class Trackmanagement:
                 else:
                     if track.P[0, 0] >= params.max_P or track.P[1, 1] >= params.max_P:
                         self.delete_track(track)
+                    if track.score < -5./params.window: # force an initialized track to be deleted after 5 misses in a row
+                        self.delete_track(track)
                     
         ############
         # END student code
@@ -181,8 +183,10 @@ class Trackmanagement:
         # - increase track score
         # - set track state to 'tentative' or 'confirmed'
         ############
+        score_limit = params.delete_threshold + 5./params.window # force a track to be deleted after 5 misses in a row
         
         track.score += 1./params.window
+        track.score = min(track.score, score_limit)  
         
         if track.score > params.confirmed_threshold:          
             track.state =  'confirmed'
